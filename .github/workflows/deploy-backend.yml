@@ -1,0 +1,33 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - "docker-compose.yml"
+      - "docker-compose.caddy.yml"
+      - "Caddyfile"
+      - ".github/workflows/deploy-backend.yml"
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy backend on EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            cd ~/apps/memories-app
+
+            git pull origin main
+
+            docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d --build backend caddy
+
+            docker image prune -f
