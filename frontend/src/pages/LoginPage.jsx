@@ -5,8 +5,8 @@ import axiosClient from "../api/axiosClient";
 function LoginPage() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("umutcantop1998@gmail.com");
-  const [password, setPassword] = useState("can123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
