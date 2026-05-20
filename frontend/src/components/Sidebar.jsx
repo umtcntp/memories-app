@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import CloverIcon from "./CloverIcon";
 import DaysTogetherCard from "./DaysTogetherCard";
+import { dailyNotes } from "../data/dailyNotes";
+import { getTodayDailyNote } from "../utils/dateUtils";
 
 const menuItems = [
     { label: "Ana Sayfa", icon: "⌂", path: "/dashboard" },
@@ -16,6 +18,7 @@ const menuItems = [
 ];
 
 function Sidebar({ user, onLogout }) {
+    const todayNote = getTodayDailyNote(dailyNotes);
     return (
         <aside className="hidden min-h-screen w-72 shrink-0 border-r border-green-100 bg-white/70 px-6 py-8 lg:flex lg:flex-col">
             <div className="mb-10 flex items-center gap-3">
@@ -60,7 +63,7 @@ function Sidebar({ user, onLogout }) {
                 </div>
 
                 <p className="text-sm leading-6 text-green-700">
-                    “Küçük anlar, büyük mutluluklar. İyi ki biz.”
+                    “{todayNote}”
                 </p>
 
                 <div className="mt-4 flex items-center gap-1">

@@ -36,16 +36,4 @@ function App() {
   );
 }
 
-function ComingSoon({ title }) {
-  return (
-    <section className="rounded-[2rem] border border-green-100 bg-white/80 p-8 shadow-sm">
-      <p className="text-sm font-medium text-green-700">Yakında</p>
-      <h1 className="mt-2 text-4xl font-semibold text-green-950">{title}</h1>
-      <p className="mt-4 text-green-700">
-        Bu sayfa için detaylı görünümü birazdan ekleyeceğiz.
-      </p>
-    </section>
-  );
-}
-
 export default App;
