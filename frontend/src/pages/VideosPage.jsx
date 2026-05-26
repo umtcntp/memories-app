@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axiosClient";
-import { formatDateTR, getMediaSrc } from "../utils/memoryUtils";
+import { getCoverSrc, getMediaSrc } from "../utils/memoryUtils";
 
 function VideosPage() {
     const [videos, setVideos] = useState([]);
@@ -99,6 +99,7 @@ function VideosPage() {
                     <div className="grid gap-5 lg:grid-cols-2">
                         {videos.map((video) => {
                             const isActive = activeVideoId === video._id;
+                            const coverSrc = video.coverImageUrl ? getCoverSrc(video) : "";
 
                             return (
                                 <article
@@ -119,17 +120,31 @@ function VideosPage() {
                                             onClick={() => setActiveVideoId(video._id)}
                                             className="group relative h-80 w-full overflow-hidden bg-gradient-to-br from-green-100 to-rose-100 text-left"
                                         >
-                                            <div className="flex h-full w-full items-center justify-center">
+                                            {coverSrc && (
+                                                <img
+                                                    src={coverSrc}
+                                                    alt={video.title || "Video kapağı"}
+                                                    loading="lazy"
+                                                    className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                                    onError={(event) => {
+                                                        event.currentTarget.style.display = "none";
+                                                    }}
+                                                />
+                                            )}
+
+                                            <div className="absolute inset-0 bg-gradient-to-t from-green-950/45 via-green-950/10 to-white/10" />
+
+                                            <div className="relative flex h-full w-full items-center justify-center">
                                                 <div className="text-center">
                                                     <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/90 text-3xl text-green-700 shadow-sm transition group-hover:scale-105">
                                                         ▶
                                                     </div>
 
-                                                    <p className="mt-4 text-sm font-medium text-green-800">
-                                                        Video
+                                                    <p className="mt-4 text-sm font-medium text-white drop-shadow">
+                                                        {video.title || "Video"}
                                                     </p>
 
-                                                    <p className="mt-1 text-xs text-green-600">
+                                                    <p className="mt-1 text-xs text-white/90 drop-shadow">
                                                         Oynatmak için tıkla
                                                     </p>
                                                 </div>

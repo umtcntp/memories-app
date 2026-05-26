@@ -5,17 +5,19 @@ const { protect, allowRoles } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 function addMediaUrl(memory) {
-    const memoryObject = memory.toObject();
+  const memoryObject = memory.toObject();
 
-    if (memoryObject.driveFileId) {
-        memoryObject.mediaUrl = `/api/media/${memoryObject.driveFileId}`;
-    }
+  if (memoryObject.driveFileId) {
+    memoryObject.mediaUrl = `/api/media/${memoryObject.driveFileId}`;
+  }
 
-    if (memoryObject.coverImageFileId) {
-        memoryObject.coverImageUrl = `/api/media/${memoryObject.coverImageFileId}`;
-    }
+  if (memoryObject.coverImageFileId) {
+    memoryObject.coverImageUrl = `/api/media/${memoryObject.coverImageFileId}`;
+  } else if (memoryObject.type === "video" && memoryObject.driveFileId) {
+    memoryObject.coverImageUrl = `/api/media/${memoryObject.driveFileId}/thumbnail`;
+  }
 
-    return memoryObject;
+  return memoryObject;
 }
 
 router.get("/", protect, async (req, res) => {
