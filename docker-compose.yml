@@ -9,7 +9,7 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - ./backend/credentials.json:/app/credentials.json
+      - ./backend/credentials.json:/app/credentials.json:ro
       - ./backend/token.json:/app/token.json
     restart: unless-stopped
 
