@@ -4,6 +4,7 @@ const { protect, allowRoles } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
+
 function addMediaUrl(memory) {
   const memoryObject = memory.toObject();
 
