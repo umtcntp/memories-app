@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
 import { formatDateTR, getTypeLabel } from "../utils/memoryUtils";
 
+
 function AdminMemoriesPage() {
     const navigate = useNavigate();
 
