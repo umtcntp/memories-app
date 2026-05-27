@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 const { protect } = require("../middlewares/authMiddleware");
+const sendLoginNotification = require("../utils/sendLoginNotification");
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ function getCookieOptions() {
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000,
   };
 }
 
@@ -48,6 +49,10 @@ router.post("/login", async (req, res) => {
     const token = generateToken(user);
 
     res.cookie("token", token, getCookieOptions());
+
+    sendLoginNotification(user).catch((error) => {
+      console.error("Login notification mail error:", error.message);
+    });
 
     res.json({
       message: "Giriş başarılı.",
