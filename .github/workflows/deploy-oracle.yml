@@ -1,0 +1,61 @@
+name: Deploy to Oracle
+
+# Runs after CI succeeds on main (or manually). The SSH key in
+# ORACLE_SSH_KEY is restricted on the server to a single forced command
+# that only updates this app (git fast-forward + docker compose for the
+# memories-app project). It cannot open a shell or touch other apps.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-oracle
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check deploy secrets
+        id: check
+        env:
+          ORACLE_SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+          ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          ORACLE_USER: ${{ secrets.ORACLE_USER }}
+          ORACLE_KNOWN_HOSTS: ${{ secrets.ORACLE_KNOWN_HOSTS }}
+        run: |
+          if [ -n "$ORACLE_SSH_KEY" ] && [ -n "$ORACLE_HOST" ] && [ -n "$ORACLE_USER" ] && [ -n "$ORACLE_KNOWN_HOSTS" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Oracle deploy secrets are not configured; skipping deploy."
+          fi
+
+      - name: Deploy
+        if: steps.check.outputs.configured == 'true'
+        env:
+          ORACLE_SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+          ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          ORACLE_USER: ${{ secrets.ORACLE_USER }}
+          ORACLE_KNOWN_HOSTS: ${{ secrets.ORACLE_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$ORACLE_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$ORACLE_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$ORACLE_USER@$ORACLE_HOST" deploy
+          rm -f ~/.ssh/deploy_key
+
+      - name: Smoke test
+        if: steps.check.outputs.configured == 'true'
+        run: |
+          curl -fsS --retry 5 --retry-delay 5 https://api.clovermoments.store/api/health
+          curl -fsS -o /dev/null https://www.clovermoments.store/
